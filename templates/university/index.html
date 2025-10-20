@@ -1,0 +1,16 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Главная — web_2025</title>
+</head>
+<body>
+<h1>Добро пожаловать на главную страницу!</h1>
+<p>Лабораторная работа 1</p>
+<nav>
+<a href="{% url 'home_page' %}">Главная</a> |
+<a href="{% url 'about' %}">О нас</a> |
+<a href="{% url 'student' student_id=1 %}">Профиль студента</a>
+</nav>
+</body>
+</html>

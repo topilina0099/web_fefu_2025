@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><title>Студент {{ student_id }}</title></head>
+<body>
+  <h1>Профиль студента №{{ student_id }}</h1>
+  <p>Имя: {{ name }}</p>
+  <p>Группа: {{ group }}</p>
+
+  <div>
+    {% if prev_id %}
+      <a href="{% url 'student' student_id=prev_id %}">← Предыдущий</a>
+    {% endif %}
+    {% if next_id %}
+      <a href="{% url 'student' student_id=next_id %}">Следующий →</a>
+    {% endif %}
+  </div>
+
+   <p><a href="{% url 'courses' %}">Посмотреть доступные курсы</a></p>
+
+  <a href="/">На главную</a>
+</body>
+</html>

@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><title>Курсы</title></head>
+<body>
+  <h1>Список курсов</h1>
+  <ul>
+    {% for slug, title in courses.items %}
+      <li><a href="{% url 'course' course_slug=slug %}">{{ title }}</a></li>
+    {% endfor %}
+  </ul>
+  <a href="/">На главную</a>
+</body>
+</html>
