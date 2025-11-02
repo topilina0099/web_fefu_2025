@@ -1,0 +1,111 @@
+
+body {
+    font-family: "Helvetica Neue", Helvetica, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    color: #333;
+    background-color: #f4f4f4;
+    
+}
+
+/* Контейнер */
+.container {
+    width: 80%;
+    margin: auto;
+    overflow: hidden;
+    padding: 20px;
+}
+
+/* Шапка */
+header {
+    background: #2e5974;
+    color: #ffffff;
+    padding-top: 30px;
+    min-height: 70px;
+    border-bottom: #0db4b4 3px solid;
+}
+
+header h1 {
+    text-align: center;
+    text-transform: uppercase;
+}
+
+/* Навигация */
+.navigation {
+    background: #0c1485;
+    color: #ffffff;
+    padding: 10px 0;
+    text-align: center;
+    width: 100%;
+}
+
+.navigation a {
+    color: #ffffff;
+    text-decoration: none;
+    padding: 0 20px;
+    display: inline-block;
+}
+
+.navigation a:hover {
+    color: #35424a;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Основной контент */
+.content {
+    padding: 20px 0;
+    background: #f4f4f4;
+}
+
+/* Формы */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+}
+
+.btn {
+    display: inline-block;
+    background: #35424a;
+    color: #ffffff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn:hover {
+    background: #e8491d;
+}
+
+/* Сообщения об ошибках */
+.alert {
+    padding: 15px;
+    margin-bottom: 20px;
+    border: 1px solid transparent;
+    border-radius: 4px;
+}
+
+.alert-danger {
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+}
+
+.alert-success {
+    color: #3c763d;
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+}

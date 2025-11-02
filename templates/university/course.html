@@ -1,14 +1,13 @@
-<!doctype html>
-<html lang="ru">
-<head>
-  <meta charset="utf-8">
-  <title>{{ title }}</title>
-</head>
-<body>
-  <h1>Курс: {{ title }}</h1>
-  <p>Slug: {{ course_slug }}</p>
 
-  <a href="/courses/">← Назад к списку курсов</a><br>
-  <a href="/">На главную</a>
-</body>
-</html>
+{% extends "university/base.html" %}
+{% load static %}
+{% block title %}{{ course.name }}{% endblock %}
+{% block heading %}{{ course.name }}{% endblock %}
+
+{% block content %}
+<p>Продолжительность: {{ course.duration }} часов</p>
+<p>Описание: {{ course.description }}</p>
+<p>Преподаватель: {{ course.instructor }}</p>
+<p>Уровень: {{ course.level }}</p>
+{% endblock %}
+

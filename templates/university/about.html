@@ -1,9 +1,8 @@
-<!doctype html>
-<html lang="ru">
-<head><meta charset="utf-8"><title>О нас</title></head>
-<body>
-<h1>О нас</h1>
-<p>Информация о курсе и лабораторной работе.</p>
-<a href="{% url 'home_page' %}">На главную</a>
-</body>
-</html>
+{% extends "university/base.html" %}
+
+{% block title %}О нас{% endblock %}
+{% block heading %}О нас{% endblock %}
+
+{% block content %}
+<p>Студентики выполняют лапки по Web. Сейчас лапка №2</p>
+{% endblock %}

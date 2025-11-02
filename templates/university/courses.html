@@ -1,13 +1,14 @@
-<!doctype html>
-<html lang="ru">
-<head><meta charset="utf-8"><title>Курсы</title></head>
-<body>
-  <h1>Список курсов</h1>
-  <ul>
-    {% for slug, title in courses.items %}
-      <li><a href="{% url 'course' course_slug=slug %}">{{ title }}</a></li>
+{% extends "university/base.html" %}
+
+{% block title %}Список курсов{% endblock %}
+{% block heading %}Список курсов{% endblock %}
+
+{% block content %}
+<ul>
+    {% for slug, course in courses.items %}
+        <li>
+            <a href="{% url 'course' course_slug=slug %}">{{ course.name }}</a>
+        </li>
     {% endfor %}
-  </ul>
-  <a href="/">На главную</a>
-</body>
-</html>
+</ul>
+{% endblock %}
