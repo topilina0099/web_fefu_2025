@@ -1,0 +1,14 @@
+{% extends "university/base.html" %}
+
+{% block title %}Список преподавателей{% endblock %}
+{% block heading %}Список преподавателей{% endblock %}
+
+{% block content %}
+<ul>
+  {% for instructor in instructors %}
+    <li>
+      {{ instructor.last_name }} {{ instructor.first_name }} ({{ instructor.email }})
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}

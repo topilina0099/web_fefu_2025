@@ -1,0 +1,13 @@
+{% extends "university/base.html" %}
+{% block title %}Список студентов{% endblock %}
+{% block heading %}Список студентов{% endblock %}
+{% block content %}
+<ul>
+  {% for student in students %}
+    <li>
+      <a href="{% url 'student_profile' student.id %}">{{ student.first_name }} {{ student.last_name }}</a>
+      ({{ student.email }}, {{ student.get_faculty_display }})
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}

@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import UserProfile
+from .models import UserProfile, Student, Course, Enrollment
 
 class RegistrationForm(forms.Form):
     username = forms.CharField(
@@ -75,3 +75,18 @@ class FeedbackForm(forms.Form):
         label='Ваше сообщение',
         widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 5})
     )
+   
+class StudentForm(forms.ModelForm):
+    class Meta:
+        model = Student
+        fields = ['first_name', 'last_name', 'email', 'birth_date', 'faculty']
+
+class CourseForm(forms.ModelForm):
+    class Meta:
+        model = Course
+        fields = ['title', 'description', 'duration', 'teacher', 'is_active']
+
+class EnrollmentForm(forms.ModelForm):
+    class Meta:
+        model = Enrollment
+        fields = ['student', 'course', 'status']

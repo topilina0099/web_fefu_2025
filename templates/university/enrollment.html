@@ -1,0 +1,23 @@
+{% extends "university/base.html" %}
+
+{% block title %}Запись на курс{% endblock %}
+
+{% block content %}
+<h1>Запись на курс</h1>
+<form method="post">
+    {% csrf_token %}
+    <div>
+        <label for="{{ form.first_name.id_for_label }}">Имя:</label>
+        {{ form.first_name }}
+    </div>
+    <div>
+        <label for="{{ form.last_name.id_for_label }}">Фамилия:</label>
+        {{ form.last_name }}
+    </div>
+    <div>
+        <label for="{{ form.course.id_for_label }}">Курс:</label>
+        {{ form.course }}
+    </div>
+    <button type="submit">Записаться</button>
+</form>
+{% endblock %}

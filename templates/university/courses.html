@@ -1,14 +1,30 @@
 {% extends "university/base.html" %}
 
-{% block title %}Список курсов{% endblock %}
-{% block heading %}Список курсов{% endblock %}
-
 {% block content %}
+<h1>Список курсов</h1>
+
+<h2>Активные курсы</h2>
 <ul>
-    {% for slug, course in courses.items %}
+    {% for course in courses %}
+        {% if course.is_active %}
         <li>
-            <a href="{% url 'course' course_slug=slug %}">{{ course.name }}</a>
+            <a href="{% url 'course_detail' course.id %}">{{ course.title }}</a>
+            ({{ course.duration }} часов)
+            <a href="{% url 'enroll' %}?course={{ course.id }}">Записаться</a>
         </li>
+        {% endif %}
+    {% endfor %}
+</ul>
+
+<h2>Неактивные курсы</h2>
+<ul>
+    {% for course in courses %}
+        {% if not course.is_active %}
+        <li>
+            {{ course.title }} (неактивен)
+        </li>
+        {% endif %}
     {% endfor %}
 </ul>
 {% endblock %}
+

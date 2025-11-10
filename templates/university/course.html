@@ -1,13 +1,14 @@
-
 {% extends "university/base.html" %}
-{% load static %}
-{% block title %}{{ course.name }}{% endblock %}
-{% block heading %}{{ course.name }}{% endblock %}
+
+{% block title %}{{ course.title }}{% endblock %}
+{% block heading %}{{ course.title }}{% endblock %}
 
 {% block content %}
-<p>Продолжительность: {{ course.duration }} часов</p>
-<p>Описание: {{ course.description }}</p>
-<p>Преподаватель: {{ course.instructor }}</p>
-<p>Уровень: {{ course.level }}</p>
+<p><strong>Описание:</strong> {{ course.description }}</p>
+<p><strong>Преподаватель:</strong> {{ course.teacher }}</p>
+<p><strong>Продолжительность:</strong> {{ course.duration }} часов</p>
+{% if not course.is_active %}
+    <p style="color:red;"><strong>Статус:</strong> Набор на этот курс закрыт.</p>
+{% endif %}
+<a href="{% url 'course_list' %}" class="btn">Назад к курсам</a>
 {% endblock %}
-

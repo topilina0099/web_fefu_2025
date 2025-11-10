@@ -7,13 +7,14 @@
 </head>
 <body>
     <div class="navigation">
-        <a href="/">Главная</a> |
-        <a href="/about/">О нас</a> |
-        <a href="/feedback/">Обратная связь</a> |
-        <a href="/register/">Регистрация</a> |
-        <a href="/login/">Вход</a> |
-        <a href="/student/1/">Пример студента</a> |
-        <a href="/course/python-basics/">Курс Python</a>
+        <a href="{% url 'home' %}">Главная</a> |
+        <a href="{% url 'about' %}">О нас</a> |
+        <a href="{% url 'feedback' %}">Обратная связь</a> |
+        <a href="{% url 'register' %}">Регистрация</a> |
+        <a href="{% url 'login' %}">Вход</a> |
+        <a href="{% url 'student_list' %}">Студенты</a> |
+        <a href="{% url 'course_list' %}">Курсы</a> |
+        <a href="{% url 'instructor_list' %}">Преподаватели</a>
     </div>
     <div class="container">
         <h1>{% block heading %}{% endblock %}</h1>
@@ -21,4 +22,5 @@
     </div>
 </body>
 </html>
+
 

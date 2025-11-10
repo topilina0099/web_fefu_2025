@@ -1,22 +1,10 @@
-
 {% extends "university/base.html" %}
-
-{% block title %}Профиль студента {{ student_id }}{% endblock %}
+{% block title %}Профиль студента{% endblock %}
 {% block heading %}Профиль студента{% endblock %}
-
 {% block content %}
-<div class="student-info">
-    <p><strong>ID студента:</strong> {{ student_id }}</p>
-    <p><strong>Информация:</strong> {{ student_info }}</p>
-    <p><strong>Факультет:</strong> {{ faculty }}</p>
-    <p><strong>Статус:</strong> {{ status }}</p>
-</div>
-<div style="margin-top: 20px;">
-    <h3>Другие студенты:</h3>
-    <ul>
-        <li><a href="/student/1/">Иван Петров</a></li>
-        <li><a href="/student/2/">Мария Сидорова</a></li>
-        <li><a href="/student/3/">Алексей Козлов</a></li>
-    </ul>
-</div>
+<p><strong>Имя:</strong> {{ student.first_name }} {{ student.last_name }}</p>
+<p><strong>Email:</strong> {{ student.email }}</p>
+<p><strong>Факультет:</strong> {{ student.get_faculty_display }}</p>
+<p><strong>Дата рождения:</strong> {{ student.birth_date|date:"d.m.Y" }}</p>
+<a href="{% url 'student_list' %}" class="btn">Назад к студентам</a>
 {% endblock %}
