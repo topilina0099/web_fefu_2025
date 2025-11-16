@@ -1,23 +1,16 @@
 {% extends "university/base.html" %}
-
 {% block title %}Запись на курс{% endblock %}
-
 {% block content %}
 <h1>Запись на курс</h1>
-<form method="post">
-    {% csrf_token %}
-    <div>
-        <label for="{{ form.first_name.id_for_label }}">Имя:</label>
-        {{ form.first_name }}
-    </div>
-    <div>
-        <label for="{{ form.last_name.id_for_label }}">Фамилия:</label>
-        {{ form.last_name }}
-    </div>
-    <div>
-        <label for="{{ form.course.id_for_label }}">Курс:</label>
-        {{ form.course }}
-    </div>
-    <button type="submit">Записаться</button>
-</form>
+{% if user.is_authenticated %}
+    <form method="post">
+        {% csrf_token %}
+        <div>
+            <p>Вы уверены, что хотите записаться на курс "{{ course.title }}"?</p>
+        </div>
+        <button type="submit">Записаться</button>
+    </form>
+{% else %}
+    <p>Чтобы записаться на курс, необходимо <a href="{% url 'login' %}">войти</a> или <a href="{% url 'registration' %}">зарегистрироваться</a>.</p>
+{% endif %}
 {% endblock %}

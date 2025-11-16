@@ -1,0 +1,49 @@
+{% extends "university/base.html" %}
+{% block title %}Управление курсом{% endblock %}
+{% block heading %}Управление курсом: {{ course.title }}{% endblock %}
+{% block content %}
+<div class="course-management">
+    <h2>Студенты на курсе</h2>
+    {% if enrollments %}
+        <ul>
+            {% for enrollment in enrollments %}
+                <li>
+                    <h3>{{ enrollment.student.first_name }} {{ enrollment.student.last_name }}</h3>
+                    <p><strong>Email:</strong> {{ enrollment.student.email }}</p>
+                    <p><strong>Статус:</strong> {{ enrollment.get_status_display }}</p>
+                    <p><strong>Оценка:</strong> {{ enrollment.grade|default:"-" }}</p>
+
+                    <!-- Форма для выставления оценок -->
+                    <form method="post" action="{% url 'set_grade' enrollment.id %}">
+                        {% csrf_token %}
+                        <div>
+                            <label for="grade">Оценка:</label>
+                            <select name="grade" id="grade" class="form-control">
+                                <option value="">Выберите оценку</option>
+                                <option value="5" {% if enrollment.grade == 5 %}selected{% endif %}>5</option>
+                                <option value="4" {% if enrollment.grade == 4 %}selected{% endif %}>4</option>
+                                <option value="3" {% if enrollment.grade == 3 %}selected{% endif %}>3</option>
+                                <option value="2" {% if enrollment.grade == 2 %}selected{% endif %}>2</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="status">Статус:</label>
+                            <select name="status" id="status" class="form-control">
+                                <option value="active" {% if enrollment.status == 'active' %}selected{% endif %}>Активен</option>
+                                <option value="completed" {% if enrollment.status == 'completed' %}selected{% endif %}>Завершен</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="completed_date">Дата завершения:</label>
+                            <input type="date" name="completed_date" id="completed_date" class="form-control" value="{{ enrollment.completed_date|date:'Y-m-d' }}">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Сохранить</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>На этот курс ещё никто не записался.</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+{% extends "university/base.html" %}
+{% block title %}Личный кабинет студента{% endblock %}
+{% block heading %}Личный кабинет студента{% endblock %}
+{% block content %}
+<div class="profile-container">
+    <div class="profile-info">
+        <h2>Профиль</h2>
+        {% if student.avatar %}
+            <img src="{{ student.avatar.url }}" alt="Аватар" class="avatar">
+        {% endif %}
+        <p><strong>Имя:</strong> {{ student.first_name }} {{ student.last_name }}</p>
+        <p><strong>Email:</strong> {{ student.email }}</p>
+        <p><strong>Факультет:</strong> {{ student.get_faculty_display }}</p>
+        <p><strong>Телефон:</strong> {{ student.phone|default:"-" }}</p>
+        <p><strong>О себе:</strong> {{ student.description|default:"-" }}</p>
+        <a href="{% url 'edit_student_profile' %}" class="edit-profile-btn">Редактировать профиль</a>
+    </div>
+
+    <div class="courses">
+        <h2>Мои курсы</h2>
+        {% if enrollments %}
+            <ul>
+                {% for enrollment in enrollments %}
+                    {% if enrollment.status != 'completed' %}
+                        <li>
+                            <h3>{{ enrollment.course.title }}</h3>
+                            <p>{{ enrollment.course.description }}</p>
+                            <p><strong>Статус:</strong> {{ enrollment.get_status_display }}</p>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Вы не записаны ни на один курс.</p>
+        {% endif %}
+
+        <h2>История обучения</h2>
+{% if completed_courses %}
+    <ul>
+        {% for enrollment in completed_courses %}
+            <li>
+                <h3>{{ enrollment.course.title }}</h3>
+                <p><strong>Дата завершения:</strong> {{ enrollment.completed_date|date:"d.m.Y" }}</p>
+                <p><strong>Оценка:</strong> {{ enrollment.grade|default:"-" }}</p>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>История обучения пуста.</p>
+{% endif %}
+    </div>
+</div>
+{% endblock %}

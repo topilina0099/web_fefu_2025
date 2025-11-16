@@ -1,14 +1,21 @@
 from django.http import HttpResponse, Http404, HttpResponseNotFound
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django import forms
 from django.views import View
 from django.views.generic import ListView, DetailView
-from .forms import RegistrationForm, LoginForm, FeedbackForm, StudentForm, CourseForm, EnrollmentForm
-from .models import UserProfile, Student, Course, Enrollment, Instructor
 from django.urls import reverse
-from django.shortcuts import get_object_or_404
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required, user_passes_test
+from django.core.exceptions import PermissionDenied
+from functools import wraps
 from django.contrib import messages
+from .forms import StudentProfileForm
+from .forms import RegistrationForm, LoginForm, FeedbackForm, GradeForm, CourseForm, EnrollmentForm
+from .models import Student, Course, Enrollment, Instructor
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.admin.views.decorators import staff_member_required
 
 def success_view(request):
     return render(request, 'university/success.html', {
@@ -23,9 +30,37 @@ def registration_view(request):
             username = form.cleaned_data['username']
             email = form.cleaned_data['email']
             password = form.cleaned_data['password']
-            user = UserProfile(username=username, email=email)
-            user.set_password(password)
-            user.save()
+            first_name = form.cleaned_data['first_name']
+            last_name = form.cleaned_data['last_name']
+            role = form.cleaned_data['role']
+
+            # Создаём пользователя
+            user = User.objects.create_user(
+                username=username,
+                email=email,
+                password=password,
+                first_name=first_name,
+                last_name=last_name
+            )
+
+            # Создаём связанный профиль (Student или Instructor)
+            if role == 'student':
+                Student.objects.create(
+                    user=user,
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email,
+                    role=role
+                )
+            elif role == 'teacher':
+                Instructor.objects.create(
+                    user=user,
+                    first_name=first_name,
+                    last_name=last_name,
+                    email=email,
+                    role=role
+                )
+            login(request, user)
             return render(request, 'university/success.html', {
                 'message': 'Регистрация прошла успешно!',
                 'title': 'Регистрация'
@@ -39,26 +74,21 @@ def registration_view(request):
 
 def login_view(request):
     if request.method == 'POST':
-        form = LoginForm(request.POST)
+        form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
             user = authenticate(request, username=username, password=password)
             if user is not None:
                 login(request, user)
-                return render(request, 'university/success.html', {
-                    'message': 'Вход выполнен успешно! Добро пожаловать в систему.',
-                    'title': 'Вход в систему'
-                })
-            else:
-                messages.error(request, "Неверное имя пользователя или пароль.")
+                return redirect('home')
     else:
-        form = LoginForm()
-    return render(request, 'university/login.html', {
-        'form': form,
-        'title': 'Вход в систему'
-    })
+        form = AuthenticationForm()
+    return render(request, 'university/login.html', {'form': form})
 
+def logout_view(request):
+    logout(request)
+    return redirect('home')
 
 def home_page(request):
     total_students = Student.objects.count()
@@ -70,14 +100,14 @@ def home_page(request):
         'recent_courses': recent_courses,
     })
 
-
 class AboutView(View):
     def get(self, request):
         return render(request, 'university/about.html')
 
+@login_required
 def student_profile(request, student_id):
     try:
-        student = Student.objects.get(id=student_id)
+        student = Student.objects.get(id=student_id, user=request.user)
         return render(request, 'university/student_profile.html', {
             'student': student,
         })
@@ -88,17 +118,19 @@ class CourseListView(ListView):
     model = Course
     template_name = 'university/courses.html'
     context_object_name = 'courses'
-
     def get_queryset(self):
-        return Course.objects.all()  
-
+        return Course.objects.all()
 
 class CourseDetailView(DetailView):
     model = Course
     template_name = 'university/course.html'
     context_object_name = 'course'
     pk_url_kwarg = 'course_id'
-
+    def get_object(self, queryset=None):
+        obj = super().get_object(queryset)
+        if not obj.is_active:
+            raise Http404("Курс неактивен или не найден.")
+        return obj
 
 def custom_404(request, exception=None):
     return render(request, 'university/not_found.html', status=404)
@@ -107,7 +139,7 @@ def feedback_view(request):
     if request.method == 'POST':
         form = FeedbackForm(request.POST)
         if form.is_valid():
-            feedback = form.save()  # Сохраняем отзыв в базу
+            feedback = form.save()
             return redirect(reverse('success') + '?message=Сообщение отправлено успешно&title=Обратная связь')
     else:
         form = FeedbackForm()
@@ -120,74 +152,149 @@ class StudentListView(ListView):
     model = Student
     template_name = 'university/students.html'
     context_object_name = 'students'
-    paginate_by = 10  # Добавляем пагинацию
-
+    paginate_by = 10
     def get_queryset(self):
         return Student.objects.all().order_by('last_name')
 
-class CourseDetailView(DetailView):
-    model = Course
-    template_name = 'university/course.html'
-    context_object_name = 'course'
-    pk_url_kwarg = 'course_id'
-
-    def get_object(self, queryset=None):
-        obj = super().get_object(queryset)
-        if not obj.is_active:
-            raise Http404("Курс неактивен или не найден.")
-        return obj
-    
-from django.shortcuts import get_object_or_404
-
-from django.shortcuts import render, redirect, get_object_or_404
-from .forms import EnrollmentForm
-
+@login_required
 def enrollment_view(request):
+    course_id = request.GET.get('course')
+    course = get_object_or_404(Course, id=course_id)
+    student = get_object_or_404(Student, user=request.user)
+
     if request.method == 'POST':
-        form = EnrollmentForm(request.POST)
-        if form.is_valid():
-            print("Form is valid")
-            form.save()
-            print("Form saved")
-            return redirect(reverse('success') + '?message=Вы успешно записаны на курс!&title=Запись на курс')
+        enrollment, created = Enrollment.objects.get_or_create(student=student, course=course)
+        if created:
+            messages.success(request, 'Вы успешно записаны на курс!')
         else:
-            print("Form is not valid:", form.errors)  # Вывод ошибок валидации
-    else:
-        form = EnrollmentForm()
+            messages.warning(request, 'Вы уже записаны на этот курс!')
+        return redirect(reverse('success'))
 
-    return render(request, 'university/enrollment.html', {'form': form})
-
-
+    return render(request, 'university/enrollment.html', {'course': course})
 class InstructorListView(ListView):
     model = Instructor
     template_name = 'university/instructors.html'
     context_object_name = 'instructors'
 
-class EnrollmentForm(forms.ModelForm):
-    first_name = forms.CharField(max_length=100, label='Имя')
-    last_name = forms.CharField(max_length=100, label='Фамилия')
-    course = forms.ModelChoiceField(queryset=Course.objects.filter(is_active=True), label='Курс')
+def role_required(allowed_roles=[]):
+    def decorator(view_func):
+        @wraps(view_func)
+        def wrap(request, *args, **kwargs):
+            user = request.user
+            if user.is_authenticated:
+                if hasattr(user, 'student') and user.student.role in allowed_roles:
+                    return view_func(request, *args, **kwargs)
+                if hasattr(user, 'instructor') and user.instructor.role in allowed_roles:
+                    return view_func(request, *args, **kwargs)
+            raise PermissionDenied
+        return wrap
+    return decorator
 
-    class Meta:
-        model = Enrollment
-        fields = ['status']
+@user_passes_test(lambda u: u.is_superuser)
+def admin_dashboard(request):
+    return render(request, 'university/admin_dashboard.html')
 
-    def __init__(self, *args, **kwargs):
-        super(EnrollmentForm, self).__init__(*args, **kwargs)
-        self.fields['status'].required = False
+@role_required(allowed_roles=['teacher'])
+def teacher_dashboard(request):
+    return render(request, 'university/teacher_dashboard.html')
 
-    def save(self, commit=True):
-        enrollment = super().save(commit=False)
-        student, created = Student.objects.get_or_create(
-            first_name=self.cleaned_data['first_name'],
-            last_name=self.cleaned_data['last_name'],
-            defaults={'email': f"{self.cleaned_data['first_name'].lower()}.{self.cleaned_data['last_name'].lower()}@example.com"}
-        )
-        enrollment.student = student
-        enrollment.course = self.cleaned_data['course']
-        if not self.cleaned_data.get('status'):
-            enrollment.status = 'active'  # Значение по умолчанию
-        if commit:
-            enrollment.save()
-        return enrollment
+@role_required(allowed_roles=['teacher', 'admin'])
+def manage_courses(request):
+    return render(request, 'university/manage_courses.html')
+
+@login_required
+def student_dashboard(request):
+    student = get_object_or_404(Student, user=request.user)
+    enrollments = Enrollment.objects.filter(student=student)
+    completed_courses = enrollments.filter(status='completed').order_by('-completed_date')
+
+    return render(request, 'university/student_dashboard.html', {
+        'student': student,
+        'enrollments': enrollments,
+        'completed_courses': completed_courses,
+    })
+@login_required
+def edit_student_profile(request):
+    # Попробуем получить объект Student для текущего пользователя
+    student, created = Student.objects.get_or_create(user=request.user)
+
+    if request.method == 'POST':
+        form = StudentProfileForm(request.POST, request.FILES, instance=student)
+        if form.is_valid():
+            form.save()
+            return redirect('student_dashboard')
+    else:
+        form = StudentProfileForm(instance=student)
+
+    return render(request, 'university/edit_student_profile.html', {'form': form})
+@login_required
+def teacher_dashboard(request):
+    instructor = get_object_or_404(Instructor, user=request.user)
+    courses = Course.objects.filter(teacher=instructor)
+    return render(request, 'university/teacher_dashboard.html', {
+        'instructor': instructor,
+        'courses': courses,
+    })
+
+@login_required
+def manage_course(request, course_id):
+    instructor = get_object_or_404(Instructor, user=request.user)
+    course = get_object_or_404(Course, id=course_id, teacher=instructor)
+    enrollments = Enrollment.objects.filter(course=course)
+
+    if request.method == 'POST':
+        enrollment_id = request.POST.get('enrollment_id')
+        enrollment = get_object_or_404(Enrollment, id=enrollment_id, course=course)
+        form = GradeForm(request.POST, instance=enrollment)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Оценка успешно выставлена!")
+            return redirect('manage_course', course_id=course.id)
+    else:
+        form = GradeForm()
+
+    return render(request, 'university/manage_course.html', {
+        'course': course,
+        'enrollments': enrollments,
+        'form': form,
+
+    })
+
+@login_required
+def set_grade(request, enrollment_id):
+    enrollment = get_object_or_404(Enrollment, id=enrollment_id)
+    instructor = get_object_or_404(Instructor, user=request.user)
+
+    # Проверка, что преподаватель ведет курс, на который записан студент
+    if enrollment.course.teacher != instructor:
+        messages.error(request, "У вас нет прав для выставления оценок на этом курсе.")
+        return redirect('manage_course', course_id=enrollment.course.id)
+
+    if request.method == 'POST':
+        grade = request.POST.get('grade')
+        status = request.POST.get('status')
+        completed_date = request.POST.get('completed_date')
+
+        enrollment.grade = int(grade) if grade else None
+        enrollment.status = status
+        enrollment.completed_date = completed_date if completed_date else None
+        enrollment.save()
+
+        messages.success(request, "Оценка успешно выставлена!")
+        return redirect('manage_course', course_id=enrollment.course.id)
     
+def is_admin(user):
+    return user.is_staff
+
+@user_passes_test(is_admin)
+def admin_dashboard(request):
+    total_students = Student.objects.count()
+    total_instructors = Instructor.objects.count()
+    total_courses = Course.objects.count()
+
+    context = {
+        'total_students': total_students,
+        'total_instructors': total_instructors,
+        'total_courses': total_courses,
+    }
+    return render(request, 'university/admin_dashboard.html', context)

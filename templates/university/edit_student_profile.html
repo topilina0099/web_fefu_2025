@@ -1,0 +1,12 @@
+{% extends "university/base.html" %}
+{% block title %}Редактирование профиля{% endblock %}
+{% block heading %}Редактирование профиля{% endblock %}
+{% block content %}
+<div class="form-container">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Сохранить изменения</button>
+    </form>
+</div>
+{% endblock %}

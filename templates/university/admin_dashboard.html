@@ -1,0 +1,17 @@
+{% extends "university/base.html" %}
+{% block title %}Админ-панель{% endblock %}
+{% block heading %}Админ-панель{% endblock %}
+{% block content %}
+<div class="admin-dashboard">
+    <h2>Добро пожаловать, Администратор!</h2>
+    <div class="admin-links">
+        <a href="{% url 'admin:index' %}" class="btn btn-primary">Перейти в админ-панель Django</a>
+    </div>
+    <div class="admin-stats">
+        <h3>Статистика</h3>
+        <p>Общее количество студентов: {{ total_students }}</p>
+        <p>Общее количество преподавателей: {{ total_instructors }}</p>
+        <p>Общее количество курсов: {{ total_courses }}</p>
+    </div>
+</div>
+{% endblock %}

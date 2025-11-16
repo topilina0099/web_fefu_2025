@@ -1,14 +1,17 @@
-
 {% extends "university/base.html" %}
-
 {% block title %}Вход в систему{% endblock %}
 {% block heading %}Вход в систему{% endblock %}
-
 {% block content %}
 <div class="form-container">
     <form method="post">
         {% csrf_token %}
-        
+        {% if form.non_field_errors %}
+            <div class="error">
+                {% for error in form.non_field_errors %}
+                    <div>{{ error }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
         {% for field in form %}
             <div class="form-group">
                 {{ field.label_tag }}
@@ -22,12 +25,10 @@
                 {% endif %}
             </div>
         {% endfor %}
-        
         <button type="submit">Войти</button>
     </form>
-    
     <p style="margin-top: 20px;">
-        Нет аккаунта? <a href="/register/">Зарегистрируйтесь</a>
+        Нет аккаунта? <a href="{% url 'registration' %}">Зарегистрируйтесь</a>
     </p>
 </div>
 {% endblock %}

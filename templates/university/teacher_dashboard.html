@@ -1,0 +1,32 @@
+{% extends "university/base.html" %}
+{% block title %}Личный кабинет преподавателя{% endblock %}
+{% block heading %}Личный кабинет преподавателя{% endblock %}
+{% block content %}
+<div class="profile-container">
+    <div class="profile-info">
+        <h2>Профиль</h2>
+        {% if instructor.avatar %}
+            <img src="{{ instructor.avatar.url }}" alt="Аватар" class="avatar">
+        {% endif %}
+        <p><strong>Имя:</strong> {{ instructor.first_name }} {{ instructor.last_name }}</p>
+        <p><strong>Email:</strong> {{ instructor.email }}</p>
+        <p><strong>О себе:</strong> {{ instructor.description|default:"-" }}</p>
+    </div>
+
+    <div class="courses">
+        <h2>Мои курсы</h2>
+        {% if courses %}
+            <ul>
+                {% for course in courses %}
+                    <li>
+                        <h3><a href="{% url 'manage_course' course.id %}">{{ course.title }}</a></h3>
+                        <p>{{ course.description }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>У вас нет курсов.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
